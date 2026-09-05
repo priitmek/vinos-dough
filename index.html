@@ -4,13 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111111">
+
   <title>Vinos Dough Calculator</title>
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Vinos Dough">
-<link rel="apple-touch-icon" href="5594E753-63EB-41E3-B6E1-62F419851B0D.png">
-  
+
+  <link rel="apple-touch-icon" href="CF166E33-EABF-4AC2-8024-A5DB4FF6EEB6.png">
+
   <style>
     :root{
       --bg:#f4f0e8;
@@ -18,7 +20,6 @@
       --text:#171717;
       --muted:#777168;
       --line:#ded8cf;
-      --accent:#111111;
     }
 
     *{box-sizing:border-box}
@@ -33,8 +34,10 @@
     .wrap{
       max-width:680px;
       margin:0 auto;
-      padding:calc(18px + env(safe-area-inset-top)) 16px
-              calc(40px + env(safe-area-inset-bottom));
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        16px
+        calc(40px + env(safe-area-inset-bottom));
     }
 
     .brand{
@@ -42,25 +45,19 @@
       padding:12px 0 20px;
     }
 
-    .brand h1{
-      margin:0;
-      font-family:Georgia,serif;
-      font-size:46px;
-      letter-spacing:5px;
-    }
-
-    .brand .sub{
-      font-size:12px;
-      letter-spacing:2px;
-      color:var(--muted);
-      margin-top:4px;
+    .brand img{
+      width:240px;
+      max-width:85%;
+      height:auto;
+      display:block;
+      margin:0 auto 12px;
+      border-radius:14px;
     }
 
     .brand .tool{
       font-size:11px;
       letter-spacing:1.5px;
       font-weight:700;
-      margin-top:9px;
     }
 
     .tabs{
@@ -78,6 +75,10 @@
       font-size:16px;
       background:#e9e4dc;
       color:#111;
+    }
+
+    button:active{
+      transform:scale(.98);
     }
 
     .tabs button.active{
@@ -132,11 +133,6 @@
       font-size:16px;
       text-align:right;
       background:#fff;
-    }
-
-    input[type=checkbox]{
-      width:23px;
-      height:23px;
     }
 
     .value{
@@ -198,7 +194,7 @@
       bottom:30px;
       transform:translateX(-50%);
       background:#111;
-      color:white;
+      color:#fff;
       padding:11px 18px;
       border-radius:20px;
       font-size:14px;
@@ -218,17 +214,23 @@
 <div class="wrap">
 
   <div class="brand">
-  <img src="CF166E33-EABF-4AC2-8024-A5DB4FF6EEB6.png"
-       alt="Vinos"
-       style="width:240px;max-width:85%;height:auto;display:block;margin:0 auto 12px;">
-  <div class="tool">DOUGH CALCULATOR</div>
-</div>
+    <img
+      src="CF166E33-EABF-4AC2-8024-A5DB4FF6EEB6.png"
+      alt="Vinos">
+    <div class="tool">DOUGH CALCULATOR</div>
+  </div>
 
   <div class="tabs">
-    <button id="calcTab" class="active" onclick="showTab('calc')">
+    <button
+      id="calcTab"
+      class="active"
+      onclick="showTab('calc')">
       Calculator
     </button>
-    <button id="methodTab" onclick="showTab('method')">
+
+    <button
+      id="methodTab"
+      onclick="showTab('method')">
       Method
     </button>
   </div>
@@ -236,50 +238,91 @@
   <div id="calc">
 
     <div class="card">
+
       <h2>Batch</h2>
 
       <div class="row">
         <span>Pizza balls</span>
+
         <div class="control">
           <button onclick="stepValue('balls',-1)">−</button>
-          <input id="balls" type="number" value="100" min="1" max="160"
-                 oninput="calculate()">
+
+          <input
+            id="balls"
+            type="number"
+            value="100"
+            min="1"
+            max="200"
+            oninput="calculate()">
+
           <button onclick="stepValue('balls',1)">+</button>
         </div>
       </div>
 
       <div class="row">
         <span>Ball weight</span>
+
         <div class="control">
           <button onclick="stepValue('ballWeight',-10)">−</button>
-          <input id="ballWeight" type="number" value="300"
-                 min="200" max="400" step="10"
-                 oninput="calculate()">
+
+          <input
+            id="ballWeight"
+            type="number"
+            value="300"
+            min="200"
+            max="400"
+            step="10"
+            oninput="calculate()">
+
           <button onclick="stepValue('ballWeight',10)">+</button>
         </div>
       </div>
 
       <div class="row">
-        <span>Include focaccia</span>
-        <input id="includeFocaccia"
-               type="checkbox"
-               checked
-               onchange="calculate()">
+        <span>Hydration</span>
+
+        <div class="control">
+          <button onclick="stepValue('hydration',-1)">−</button>
+
+          <input
+            id="hydration"
+            type="number"
+            value="70"
+            min="55"
+            max="85"
+            step="1"
+            oninput="calculate()">
+
+          <button onclick="stepValue('hydration',1)">+</button>
+        </div>
       </div>
 
-      <div class="row" id="focacciaRow">
-        <span>Focaccia dough</span>
-        <input id="focacciaWeight"
-               type="number"
-               value="2500"
-               min="500"
-               max="5000"
-               step="100"
-               oninput="calculate()">
+      <div class="row">
+        <div>
+          <div>Focaccia count</div>
+          <div class="hint">1 = 2,500 g dough</div>
+        </div>
+
+        <div class="control">
+          <button onclick="stepValue('focacciaCount',-1)">−</button>
+
+          <input
+            id="focacciaCount"
+            type="number"
+            value="1"
+            min="0"
+            max="10"
+            step="1"
+            oninput="calculate()">
+
+          <button onclick="stepValue('focacciaCount',1)">+</button>
+        </div>
       </div>
+
     </div>
 
     <div class="card">
+
       <h2>Recipe</h2>
 
       <div class="row">
@@ -311,26 +354,41 @@
       </div>
 
       <div class="row">
+        <span>Pizza dough</span>
+        <span class="value" id="pizzaTotal"></span>
+      </div>
+
+      <div class="row">
+        <span>Focaccia dough</span>
+        <span class="value" id="focacciaTotal"></span>
+      </div>
+
+      <div class="row">
         <span>Total dough</span>
         <span class="value" id="total"></span>
       </div>
 
       <div class="row">
         <span>Hydration</span>
-        <span class="value">70%</span>
+        <span class="value" id="hydrationDisplay"></span>
       </div>
 
       <div class="warning" id="warning">
         One full biga bucket is too large for this batch.
       </div>
+
     </div>
 
-    <button class="primary" onclick="copyRecipe()">
+    <button
+      class="primary"
+      onclick="copyRecipe()">
       Copy Recipe
     </button>
 
-    <button class="secondary" onclick="set100()">
-      Reset to 100 Balls + Focaccia
+    <button
+      class="secondary"
+      onclick="resetDefaults()">
+      Reset to Default Values
     </button>
 
   </div>
@@ -339,6 +397,7 @@
 
     <div class="card method">
       <h2>Pizza Dough</h2>
+
       <ol>
         <li>Add ice water, flour, fresh yeast and the cut-up biga to the mixer.</li>
         <li>Mix until well combined and the dough looks smooth.</li>
@@ -351,9 +410,10 @@
 
     <div class="card method">
       <h2>Focaccia</h2>
+
       <ol>
-        <li>Weigh 2.5 kg of dough for focaccia.</li>
-        <li>Return it to the mixer with an extra 50 g fresh yeast and a liberal amount of olive oil.</li>
+        <li>Weigh 2.5 kg of dough for each focaccia.</li>
+        <li>Return each 2.5 kg focaccia portion to the mixer with an extra 50 g fresh yeast and a liberal amount of olive oil.</li>
         <li>Place on a gastronorm tray lined with baking paper and coat with olive oil.</li>
         <li>Proof near the oven, turning until it has spread across most of the tray.</li>
         <li>Do not allow a crust to form. Add more olive oil if needed.</li>
@@ -364,8 +424,9 @@
 
     <div class="card method">
       <h2>Balling</h2>
+
       <ol>
-        <li>While the focaccia is proofing, weigh the remaining dough into 300 g portions.</li>
+        <li>While the focaccia is proofing, weigh the remaining dough into the selected ball weight.</li>
         <li>Dust the dough trays lightly with flour.</li>
         <li>Ball into smooth dough balls.</li>
         <li>Place 12 per tray in a 3 × 4 layout.</li>
@@ -376,63 +437,85 @@
   </div>
 
   <div class="footer">
-    House formula: 1 × 7.5 kg biga bucket at 50% hydration,
-    70% final hydration and 2.5% salt.
+    House formula:
+    1 × 7.5 kg biga bucket at 50% hydration,
+    70% default final hydration
+    and 2.5% salt.
   </div>
 
 </div>
 
-<div id="toast">Recipe copied</div>
+<div id="toast">
+  Recipe copied
+</div>
 
 <script>
 
 const BIGA_FLOUR = 5000;
 const BIGA_WATER = 2500;
-const HYDRATION = 0.70;
-const SALT_RATE = 0.025;
 
-/*
-Fresh yeast rate chosen so the normal 79-ball + focaccia
-batch gives approximately 40 g.
-*/
+const FOCACCIA_WEIGHT = 2500;
+
+const SALT_RATE = 0.025;
 const YEAST_RATE = 0.00264;
+
 
 function round5(value){
   return Math.round(value / 5) * 5;
 }
 
+
 function getValues(){
 
   const balls =
-    Number(document.getElementById("balls").value || 0);
+    Number(
+      document.getElementById("balls").value || 0
+    );
 
   const ballWeight =
-    Number(document.getElementById("ballWeight").value || 0);
+    Number(
+      document.getElementById("ballWeight").value || 0
+    );
 
-  const includeFocaccia =
-    document.getElementById("includeFocaccia").checked;
+  const hydrationPercent =
+    Number(
+      document.getElementById("hydration").value || 70
+    );
 
-  const focacciaWeight =
-    Number(document.getElementById("focacciaWeight").value || 0);
+  const hydration =
+    hydrationPercent / 100;
+
+  const focacciaCount =
+    Math.max(
+      0,
+      Number(
+        document.getElementById("focacciaCount").value || 0
+      )
+    );
+
+  const pizzaDough =
+    balls * ballWeight;
+
+  const focacciaDough =
+    focacciaCount * FOCACCIA_WEIGHT;
 
   const targetDough =
-    balls * ballWeight +
-    (includeFocaccia ? focacciaWeight : 0);
-
-  /*
-  Finished dough:
-  flour + 70% water + 2.5% salt + yeast
-  */
+    pizzaDough + focacciaDough;
 
   const totalFlour =
     targetDough /
-    (1 + HYDRATION + SALT_RATE + YEAST_RATE);
+    (
+      1 +
+      hydration +
+      SALT_RATE +
+      YEAST_RATE
+    );
 
   const addedFlour =
     totalFlour - BIGA_FLOUR;
 
   const addedWater =
-    totalFlour * HYDRATION - BIGA_WATER;
+    totalFlour * hydration - BIGA_WATER;
 
   const salt =
     totalFlour * SALT_RATE;
@@ -443,22 +526,24 @@ function getValues(){
   return {
     balls,
     ballWeight,
-    includeFocaccia,
-    focacciaWeight,
+    hydration,
+    hydrationPercent,
+    focacciaCount,
+    pizzaDough,
+    focacciaDough,
     targetDough,
     addedFlour,
     addedWater,
     salt,
     yeast
   };
+
 }
+
 
 function calculate(){
 
   const v = getValues();
-
-  document.getElementById("focacciaRow").style.display =
-    v.includeFocaccia ? "flex" : "none";
 
   document.getElementById("flour").textContent =
     round5(v.addedFlour) + " g";
@@ -472,34 +557,62 @@ function calculate(){
   document.getElementById("yeast").textContent =
     round5(v.yeast) + " g";
 
+  document.getElementById("pizzaTotal").textContent =
+    Math.round(v.pizzaDough) + " g";
+
+  document.getElementById("focacciaTotal").textContent =
+    Math.round(v.focacciaDough) + " g";
+
   document.getElementById("total").textContent =
     Math.round(v.targetDough) + " g";
 
+  document.getElementById("hydrationDisplay").textContent =
+    v.hydrationPercent + "%";
+
   document.getElementById("warning").style.display =
-    (v.addedFlour < 0 || v.addedWater < 0)
+    (
+      v.addedFlour < 0 ||
+      v.addedWater < 0
+    )
     ? "block"
     : "none";
+
 }
 
-function stepValue(id, change){
 
-  const input = document.getElementById(id);
+function stepValue(id,change){
 
-  input.value =
+  const input =
+    document.getElementById(id);
+
+  let newValue =
     Number(input.value || 0) + change;
 
+  if(id === "focacciaCount"){
+    newValue = Math.max(0,newValue);
+  }
+
+  input.value = newValue;
+
   calculate();
+
 }
 
-function set79(){
 
-  document.getElementById("balls").value = 79;
+function resetDefaults(){
+
+  document.getElementById("balls").value = 100;
+
   document.getElementById("ballWeight").value = 300;
-  document.getElementById("includeFocaccia").checked = true;
-  document.getElementById("focacciaWeight").value = 2500;
+
+  document.getElementById("hydration").value = 70;
+
+  document.getElementById("focacciaCount").value = 1;
 
   calculate();
+
 }
+
 
 function showTab(tab){
 
@@ -530,7 +643,9 @@ function showTab(tab){
     "active",
     tab === "method"
   );
+
 }
+
 
 async function copyRecipe(){
 
@@ -539,13 +654,15 @@ async function copyRecipe(){
   const recipe =
 `Vinos Pizza Dough
 
-${v.balls} × ${v.ballWeight} g pizza balls${v.includeFocaccia ? ` + ${v.focacciaWeight} g focaccia` : ""}
+${v.balls} × ${v.ballWeight} g pizza balls
+Focaccia × ${v.focacciaCount} (${v.focacciaDough} g)
 
 Biga – 1 bucket
 ${round5(v.addedFlour)} g flour
 ${round5(v.addedWater)} g ice water (half ice / half water)
 ${round5(v.salt)} g salt
-${round5(v.yeast)} g fresh yeast`;
+${round5(v.yeast)} g fresh yeast
+Hydration – ${v.hydrationPercent}%`;
 
   try{
 
@@ -556,18 +673,25 @@ ${round5(v.yeast)} g fresh yeast`;
 
     toast.classList.add("show");
 
-    setTimeout(()=>{
-      toast.classList.remove("show");
-    },1500);
+    setTimeout(
+      ()=>{
+        toast.classList.remove("show");
+      },
+      1500
+    );
 
-  }catch(error){
+  }
+  catch(error){
 
     prompt(
       "Copy this recipe:",
       recipe
     );
+
   }
+
 }
+
 
 calculate();
 
