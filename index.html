@@ -924,87 +924,34 @@ function round1(value) {
 
 function getReferenceYeast(temperature) {
 
-
-  /*
-  Do not extrapolate outside
-  the calibrated 18–30°C range.
-  */
-
   if (temperature <= YEAST_CURVE[0].temp) {
-
     return YEAST_CURVE[0].yeast;
-
   }
 
-
-  if (
-    temperature >=
-    YEAST_CURVE[YEAST_CURVE.length - 1].temp
-  ) {
-
-    return
-      YEAST_CURVE[
-        YEAST_CURVE.length - 1
-      ].yeast;
-
+  if (temperature >= YEAST_CURVE[YEAST_CURVE.length - 1].temp) {
+    return YEAST_CURVE[YEAST_CURVE.length - 1].yeast;
   }
 
+  for (let i = 0; i < YEAST_CURVE.length - 1; i++) {
 
-  /*
-  Find the two temperature points
-  surrounding the selected temperature
-  and interpolate automatically.
-  */
-
-  for (
-    let i = 0;
-    i < YEAST_CURVE.length - 1;
-    i++
-  ) {
-
-
-    const lower =
-      YEAST_CURVE[i];
-
-
-    const upper =
-      YEAST_CURVE[i + 1];
-
+    const lower = YEAST_CURVE[i];
+    const upper = YEAST_CURVE[i + 1];
 
     if (
       temperature >= lower.temp &&
       temperature <= upper.temp
     ) {
 
-
       const position =
-        (
-          temperature -
-          lower.temp
-        )
-        /
-        (
-          upper.temp -
-          lower.temp
-        );
+        (temperature - lower.temp) /
+        (upper.temp - lower.temp);
 
-
-      return (
-        lower.yeast +
-        position *
-        (
-          upper.yeast -
-          lower.yeast
-        )
-      );
-
+      return lower.yeast +
+        position * (upper.yeast - lower.yeast);
     }
-
   }
 
-
   return 30;
-
 }
 
 
