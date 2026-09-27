@@ -1,7 +1,8 @@
 {
   "name": "Vinos Dough Calculator",
   "short_name": "Vinos Dough",
-  "start_url": "./",
+  "start_url": "./?launch=1",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f5f1ea",
   "theme_color": "#f5f1ea",
@@ -9,7 +10,8 @@
     {
       "src": "./5594E753-63EB-41E3-B6E1-62F419851B0D.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
