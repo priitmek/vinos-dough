@@ -17,12 +17,14 @@
     .brand{text-align:center;padding:12px 0 20px}
     .brand img{width:240px;max-width:85%;height:auto;display:block;margin:0 auto 12px;border-radius:14px}
     .brand .tool{font-size:11px;letter-spacing:1.5px;font-weight:700}
-    .tabs,.day-buttons{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+    .tabs,.day-buttons,.mode-buttons{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
     .day-buttons{grid-template-columns:repeat(3,1fr);margin:12px 0}
+    .mode-buttons{margin:12px 0 8px}
     button{border:0;border-radius:12px;padding:11px 14px;font-weight:700;font-size:16px;background:#e9e4dc;color:#111;cursor:pointer}
     button:active{transform:scale(.98)}
-    .tabs button.active,.day-buttons button.active{background:#111;color:#fff}
+    .tabs button.active,.day-buttons button.active,.mode-buttons button.active{background:#111;color:#fff}
     .day-buttons button{padding:13px 5px;font-size:14px}
+    .mode-buttons button{padding:12px 6px;font-size:14px}
     .card{background:var(--card);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 2px 14px #0000000f}
     h2{font-size:18px;margin:0 0 14px}
     .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
@@ -39,6 +41,11 @@
     .slider-head{display:flex;justify-content:space-between;align-items:center;gap:16px}
     .slider-value{font-size:22px;font-weight:800;white-space:nowrap}
     .slider-scale{display:flex;justify-content:space-between;text-align:center;font-size:11px;color:var(--muted)}
+    /* Place the neutral label at its true position on the linear 30–100% slider. */
+    .humidity-scale{position:relative;height:32px;display:block}
+    .humidity-scale .scale-left{position:absolute;left:0;text-align:left}
+    .humidity-scale .scale-neutral{position:absolute;left:35.7142857%;transform:translateX(-50%);text-align:center}
+    .humidity-scale .scale-right{position:absolute;right:0;text-align:right}
     .info{background:#f6f3ee;padding:12px;border-radius:11px;font-size:13px;line-height:1.5}
     .info strong{font-weight:750}
     .experimental{margin-top:12px;padding:10px 12px;border-left:3px solid #bd9465;background:#f9f5ef;border-radius:0 8px 8px 0;color:#685a49;font-size:12px;line-height:1.5}
@@ -67,6 +74,15 @@
   </nav>
   <main id="calc">
     <section class="card">
+      <h2>Dough method</h2>
+      <div class="mode-buttons" aria-label="Select dough method">
+        <button type="button" id="mode-biga" class="active" aria-pressed="true" onclick="setDoughMode('biga')">Use biga</button>
+        <button type="button" id="mode-direct" aria-pressed="false" onclick="setDoughMode('direct')">Direct dough</button>
+      </div>
+      <div class="hint">Use your usual full bucket, or exclude the biga completely and calculate a direct-method recipe.</div>
+    </section>
+
+    <section class="card" id="bigaSection">
       <h2>Biga bucket</h2>
       <div class="hint">One full bucket per service. All three prepared Wednesday around noon; 3 hours at room temperature, then 3–5°C coolroom.</div>
       <div class="day-buttons" aria-label="Select biga bucket">
@@ -95,6 +111,20 @@
       </div>
       <div class="experimental"><strong>Provisional biga adjustments:</strong> Thursday 100%, Friday 85%, Saturday 70% of the temperature-based fresh-yeast estimate. Selecting “Very active” reduces it a further 15%. These are trial settings, not proven fermentation predictions. Reducing yeast cannot repair a collapsed or overmature biga.</div>
       <div id="bigaWarning" class="warning"></div>
+      <div id="pastPeakAction" class="warning">
+        <strong>Suspect the biga has passed its peak?</strong> If its structure has collapsed, consider leaving it out rather than trying to correct it with less yeast.
+        <button type="button" class="primary" onclick="setDoughMode('direct')">Exclude biga — use direct dough</button>
+      </div>
+    </section>
+
+    <section class="card" id="directSection" style="display:none">
+      <h2>Direct dough — no biga</h2>
+      <div class="info">The recipe now uses fresh flour and water for the entire batch. Direct dough requires its own fresh-yeast quantity; the active-biga yeast curve does <strong>not</strong> apply.</div>
+      <div class="row">
+        <label for="directYeast">Fresh yeast for this batch (g)<div class="hint">Enter your chosen amount for the planned proofing time. No automatic direct-method yeast estimate has been calibrated yet.</div></label>
+        <input id="directYeast" type="number" inputmode="decimal" min="0.1" step="0.1" placeholder="Required" oninput="calculate()">
+      </div>
+      <div id="directYeastWarning" class="warning">Enter a fresh-yeast quantity to complete and copy the direct-dough recipe.</div>
     </section>
 
     <section class="card">
@@ -104,7 +134,7 @@
       <div class="row"><span>Target hydration %</span><div class="control"><button type="button" onclick="stepValue('hydration',-1)">−</button><input id="hydration" type="number" value="70" min="55" max="85" step="1" oninput="calculate()"><button type="button" onclick="stepValue('hydration',1)">+</button></div></div>
       <div class="row"><div>Focaccia count<div class="hint">1 = 2,500 g dough</div></div><div class="control"><button type="button" onclick="stepValue('focacciaCount',-1)">−</button><input id="focacciaCount" type="number" value="1" min="0" max="10" step="1" oninput="calculate()"><button type="button" onclick="stepValue('focacciaCount',1)">+</button></div></div>
       <div class="slider-box">
-        <div class="slider-head"><div>Ambient temperature<div class="hint">Adjusts the starting fresh-yeast estimate</div></div><div class="slider-value"><span id="temperatureDisplay">24</span>°C</div></div>
+        <div class="slider-head"><div>Ambient temperature<div class="hint" id="temperatureHint">Adjusts the starting fresh-yeast estimate</div></div><div class="slider-value"><span id="temperatureDisplay">24</span>°C</div></div>
         <input id="temperature" type="range" min="18" max="30" step="1" value="24" oninput="calculate()">
         <div class="slider-scale"><span>18°C<br>cooler</span><span>24°C</span><span>30°C<br>warmer</span></div>
       </div>
@@ -116,7 +146,7 @@
         <div id="humidityControls" class="muted-control">
           <div class="slider-head"><span>Relative humidity</span><div class="slider-value"><span id="humidityDisplay">55</span>%</div></div>
           <input id="humidity" type="range" min="30" max="100" step="1" value="55" oninput="calculate()" disabled>
-          <div class="slider-scale"><span>30%<br>dry</span><span>55%<br>neutral</span><span>100%<br>humid</span></div>
+          <div class="slider-scale humidity-scale"><span class="scale-left">30%<br>dry</span><span class="scale-neutral">55%<br>neutral</span><span class="scale-right">100%<br>humid</span></div>
         </div>
         <div class="experimental"><strong>Experimental:</strong> Relative humidity is not a direct measurement of flour moisture. This correction is off by default; enable only when you want to trial it and assess the dough.</div>
       </div>
@@ -124,15 +154,15 @@
 
     <section class="card">
       <h2>Recipe</h2>
-      <div class="row"><span>Biga</span><span class="value">1 full bucket (~7.51 kg)</span></div>
-      <div class="row"><span>Additional flour</span><span class="value" id="flour"></span></div>
+      <div class="row"><span>Biga</span><span class="value" id="bigaAmount">1 full bucket (~7.51 kg)</span></div>
+      <div class="row"><span id="flourLabel">Additional flour</span><span class="value" id="flour"></span></div>
       <div class="row"><div>Ice water<div class="hint">Half ice / half water</div></div><span class="value" id="water"></span></div>
       <div class="row"><span>Salt</span><span class="value" id="salt"></span></div>
-      <div class="row"><div>Added fresh yeast<div class="hint" id="yeastHint"></div></div><span class="value" id="yeast"></span></div>
+      <div class="row"><div><span id="yeastLabel">Added fresh yeast</span><div class="hint" id="yeastHint"></div></div><span class="value" id="yeast"></span></div>
       <div class="row"><span>Pizza dough</span><span class="value" id="pizzaTotal"></span></div>
       <div class="row"><span>Focaccia dough</span><span class="value" id="focacciaTotal"></span></div>
       <div class="row"><span>Total dough</span><span class="value" id="total"></span></div>
-      <div class="row"><div>Biga flour share<div class="hint">Share of total flour already prefermented</div></div><span class="value" id="bigaShare"></span></div>
+      <div class="row" id="bigaShareRow"><div>Biga flour share<div class="hint">Share of total flour already prefermented</div></div><span class="value" id="bigaShare"></span></div>
       <div class="row"><span>Target hydration</span><span class="value" id="targetHydrationDisplay"></span></div>
       <div class="row"><div>Humidity correction<div class="hint" id="humidityHint"></div></div><span class="value" id="humidityCorrectionDisplay"></span></div>
       <div class="row"><span>Working hydration</span><span class="value" id="adjustedHydrationDisplay"></span></div>
@@ -145,18 +175,25 @@
   </main>
 
   <main id="method" style="display:none">
-    <section class="card method"><h2>Weekly Biga</h2><ol>
+    <section class="card method" id="bigaMethod"><h2>Weekly Biga</h2><ol>
       <li>Wednesday around noon: mix 15 kg flour, 7.5 kg water and 20 g fresh yeast (50% hydration).</li>
       <li>Divide evenly into three buckets. Each contains approximately 5 kg flour, 2.5 kg water and 6.67 g fresh yeast.</li>
       <li>Leave all three at room temperature for approximately 3 hours, then refrigerate at 3–5°C.</li>
       <li>Use one bucket for each service, usually around noon Thursday, Friday and Saturday. Check the biga's actual condition before mixing: its age is only a guide.</li>
     </ol></section>
-    <section class="card method"><h2>Pizza Dough</h2><ol>
+    <section class="card method" id="bigaPizzaMethod"><h2>Pizza Dough with Biga</h2><ol>
       <li>Select the correct service bucket and assess the biga. Check the suggested fresh yeast and fine-tune if necessary.</li>
       <li>Add ice water, additional flour, added fresh yeast and cut-up biga to the mixer.</li>
       <li>Mix until well combined and smooth, then add salt.</li>
       <li>Continue mixing until the dough reaches at least 18°C. Go slightly higher if the kitchen is cold. Record the finished-dough temperature when comparing batches.</li>
       <li>Oil your hands and remove the dough onto the bench, in two lots if necessary. Shape into a large smooth dough ball and lightly oil.</li>
+    </ol></section>
+    <section class="card method" id="directPizzaMethod" style="display:none"><h2>Direct Pizza Dough</h2><ol>
+      <li>Use the direct-method recipe and enter a fresh-yeast quantity suited to your planned proofing time. Do not use the biga-specific yeast recommendation.</li>
+      <li>Add the calculated ice water, flour and selected fresh yeast to the mixer. No biga is used.</li>
+      <li>Mix until well combined and smooth, then add salt.</li>
+      <li>Continue mixing to your target finished-dough temperature. Monitor proofing according to your chosen direct-method schedule.</li>
+      <li>Oil your hands, remove dough to the bench, shape and lightly oil before portioning.</li>
     </ol></section>
     <section class="card method"><h2>Focaccia</h2><ol>
       <li>Weigh 2.5 kg of finished dough for each focaccia.</li>
@@ -171,7 +208,7 @@
       <li>Proof at room temperature. Monitor more closely with a very active or older biga, especially on warm days.</li>
     </ol></section>
   </main>
-  <footer class="footer">Vinos house formula · One fixed biga bucket · Biga-age yeast adjustment provisional · Humidity correction optional and experimental</footer>
+  <footer class="footer">Vinos house formula · Full-bucket biga or direct dough · Biga-age yeast adjustment provisional · Humidity correction optional and experimental</footer>
 </div>
 <div id="toast">Recipe copied</div>
 <script>
@@ -193,6 +230,7 @@ const BIGA_DAYS={
 const CONDITION_FACTORS={normal:1,veryActive:.85,underdeveloped:1,pastPeak:1};
 const CONDITION_LABELS={normal:'Well developed / normal',veryActive:'Very active',underdeveloped:'Still developing',pastPeak:'Possibly past its peak'};
 let serviceDay='thu';
+let doughMode='biga';
 const $=id=>document.getElementById(id);
 const round5=n=>Math.round(n/5)*5;
 const round1=n=>Math.round((n+1e-9)*10)/10;
@@ -229,15 +267,28 @@ function getValues(){
   const targetDough=pizzaDough+focacciaDough;
   const referenceYeast=interpolate(temperature,YEAST_CURVE,'temp','yeast');
   const baseScaledYeast=referenceYeast*targetDough/REFERENCE_DOUGH;
-  const yeast=baseScaledYeast*biga.yeastFactor*conditionFactor*yeastTrim/100;
-  // Biga already contains its own yeast; do not double count it in the final mix.
-  const totalFlour=(targetDough-BIGA_YEAST-yeast)/(1+hydration+SALT_RATE);
+  const rawDirectYeast=$('directYeast').value.trim();
+  const enteredDirectYeast=Number(rawDirectYeast);
+  const directYeastValid=rawDirectYeast!==''&&Number.isFinite(enteredDirectYeast)&&enteredDirectYeast>0&&enteredDirectYeast<targetDough;
+  const direct=doughMode==='direct';
+  // No biga in direct mode. Never reuse the biga yeast curve for direct dough.
+  // Until manual yeast is entered, flour/water/salt are a provisional preview only.
+  const yeast=direct?(directYeastValid?enteredDirectYeast:0):baseScaledYeast*biga.yeastFactor*conditionFactor*yeastTrim/100;
+  const includedBigaFlour=direct?0:BIGA_FLOUR;
+  const includedBigaWater=direct?0:BIGA_WATER;
+  const includedBigaYeast=direct?0:BIGA_YEAST;
+  const totalFlour=(targetDough-includedBigaYeast-yeast)/(1+hydration+SALT_RATE);
   const totalWater=totalFlour*hydration;
-  const addedFlour=totalFlour-BIGA_FLOUR;
-  const addedWater=totalWater-BIGA_WATER;
+  const addedFlour=totalFlour-includedBigaFlour;
+  const addedWater=totalWater-includedBigaWater;
   const salt=totalFlour*SALT_RATE;
-  const bigaFlourShare=totalFlour>0?100*BIGA_FLOUR/totalFlour:0;
-  return {balls,ballWeight,targetHydrationPercent,focacciaCount,temperature,humidity,humidityEnabled,humidityCorrection,adjustedHydrationPercent,pizzaDough,focacciaDough,targetDough,biga,condition,conditionFactor,yeastTrim,referenceYeast,baseScaledYeast,yeast,addedFlour,addedWater,salt,bigaFlourShare};
+  const bigaFlourShare=totalFlour>0?100*includedBigaFlour/totalFlour:0;
+  return {balls,ballWeight,targetHydrationPercent,focacciaCount,temperature,humidity,humidityEnabled,humidityCorrection,adjustedHydrationPercent,pizzaDough,focacciaDough,targetDough,biga,condition,conditionFactor,yeastTrim,referenceYeast,baseScaledYeast,yeast,addedFlour,addedWater,salt,bigaFlourShare,direct,directYeastValid,includedBigaFlour,includedBigaWater,includedBigaYeast};
+}
+function setDoughMode(mode){
+  if(mode!=='biga'&&mode!=='direct')return;
+  doughMode=mode;
+  calculate();
 }
 function setService(day){
   if(!BIGA_DAYS[day])return;
@@ -250,33 +301,49 @@ function setService(day){
 }
 function calculate(){
   const v=getValues();
+  $('mode-biga').classList.toggle('active',!v.direct);
+  $('mode-direct').classList.toggle('active',v.direct);
+  $('mode-biga').setAttribute('aria-pressed',String(!v.direct));
+  $('mode-direct').setAttribute('aria-pressed',String(v.direct));
+  $('bigaSection').style.display=v.direct?'none':'block';
+  $('directSection').style.display=v.direct?'block':'none';
+  $('bigaMethod').style.display=v.direct?'none':'block';
+  $('bigaPizzaMethod').style.display=v.direct?'none':'block';
+  $('directPizzaMethod').style.display=v.direct?'block':'none';
   $('bigaHistory').innerHTML='<strong>'+v.biga.name+' bucket</strong> · ~'+v.biga.ageHours+' h old at mixing<br>3 h room temperature + ~'+v.biga.fridgeHours+' h at 3–5°C<br><span class="hint">Estimated for mixing around noon. Actual maturity depends on cooling and the biga’s condition.</span>';
   $('yeastTrimDisplay').textContent=v.yeastTrim;
   $('temperatureDisplay').textContent=v.temperature;
+  $('temperatureHint').textContent=v.direct?'Reference only; direct yeast is entered manually':'Adjusts the starting fresh-yeast estimate';
   $('humidityDisplay').textContent=v.humidity;
   $('humidity').disabled=!v.humidityEnabled;
   $('humidityControls').classList.toggle('muted-control',!v.humidityEnabled);
+  $('bigaAmount').textContent=v.direct?'None — direct dough':'1 full bucket (~7.51 kg)';
+  $('flourLabel').textContent=v.direct?'Flour':'Additional flour';
   $('flour').textContent=gram(round5(v.addedFlour));
   $('water').textContent=gram(round5(v.addedWater));
   $('salt').textContent=gram(round5(v.salt));
-  $('yeast').textContent=fmt(round1(v.yeast))+' g';
-  $('yeastHint').textContent=v.temperature+'°C · '+v.biga.name+' ('+Math.round(v.biga.yeastFactor*100)+'% base)'+(v.condition==='veryActive'?' · very active (85%)':'')+(v.yeastTrim!==100?' · manual '+v.yeastTrim+'%':'');
+  $('yeastLabel').textContent=v.direct?'Fresh yeast':'Added fresh yeast';
+  $('yeast').textContent=v.direct&&!v.directYeastValid?'Enter amount':fmt(round1(v.yeast))+' g';
+  $('yeastHint').textContent=v.direct?'Manual direct-method quantity':v.temperature+'°C · '+v.biga.name+' ('+Math.round(v.biga.yeastFactor*100)+'% base)'+(v.condition==='veryActive'?' · very active (85%)':'')+(v.yeastTrim!==100?' · manual '+v.yeastTrim+'%':'');
   $('pizzaTotal').textContent=gram(v.pizzaDough);
   $('focacciaTotal').textContent=gram(v.focacciaDough);
   $('total').textContent=gram(v.targetDough);
+  $('bigaShareRow').style.display=v.direct?'none':'flex';
   $('bigaShare').textContent=fmt(v.bigaFlourShare)+'%';
   $('targetHydrationDisplay').textContent=fmt(v.targetHydrationPercent)+'%';
   $('humidityHint').textContent=v.humidityEnabled?v.humidity+'% RH · experimental':'Off · experimental';
   $('humidityCorrectionDisplay').textContent=v.humidityEnabled?signedPercent(v.humidityCorrection):'Off (0%)';
   $('adjustedHydrationDisplay').textContent=fmt(v.adjustedHydrationPercent)+'%';
-  $('batchWarning').style.display=(v.addedFlour<0||v.addedWater<0)?'block':'none';
-  $('shareWarning').style.display=(v.addedFlour>=0&&v.addedWater>=0&&v.bigaFlourShare>35)?'block':'none';
+  $('batchWarning').style.display=(!v.direct&&(v.addedFlour<0||v.addedWater<0))?'block':'none';
+  $('shareWarning').style.display=(!v.direct&&v.addedFlour>=0&&v.addedWater>=0&&v.bigaFlourShare>35)?'block':'none';
+  $('directYeastWarning').style.display=v.direct&&!v.directYeastValid?'block':'none';
   let warning='';
-  if(v.condition==='pastPeak')warning='If the biga is collapsing, very acidic or has lost structure, lowering added yeast will not reverse overfermentation. Assess it before using.';
+  if(v.condition==='pastPeak')warning='Reducing added yeast will not reverse overfermentation. Assess the biga before deciding whether to use it.';
   else if(v.condition==='underdeveloped')warning='An underdeveloped biga may need a different fermentation plan. The app does not automatically add yeast for this assessment.';
   else if(serviceDay==='sat')warning='Saturday’s biga is the oldest. Even with reduced added yeast, monitor dough temperature and proofing closely.';
   $('bigaWarning').textContent=warning;
-  $('bigaWarning').style.display=warning?'block':'none';
+  $('bigaWarning').style.display=!v.direct&&warning?'block':'none';
+  $('pastPeakAction').style.display=!v.direct&&v.condition==='pastPeak'?'block':'none';
 }
 function stepValue(id,change){
   const input=$(id);
@@ -289,7 +356,9 @@ function stepValue(id,change){
 function resetDefaults(){
   Object.entries({balls:100,ballWeight:300,hydration:70,focacciaCount:1,temperature:24,humidity:55,yeastTrim:100,bigaCondition:'normal'}).forEach(([id,value])=>$(id).value=value);
   $('humidityEnabled').checked=false;
+  $('directYeast').value='';
   setService('thu');
+  setDoughMode('biga');
 }
 function showTab(tab){
   $('calc').style.display=tab==='calc'?'block':'none';
@@ -299,9 +368,13 @@ function showTab(tab){
 }
 async function copyRecipe(){
   const v=getValues();
+  if(v.direct&&!v.directYeastValid){alert('Enter the fresh yeast amount for your direct-method proofing plan before copying.');return;}
   if(v.addedFlour<0||v.addedWater<0){alert('This batch is too small for one full biga bucket. Increase the batch before copying.');return;}
   const conditionNote=v.condition==='pastPeak'?'WARNING: Possibly past peak. Reducing added yeast cannot repair an overmature biga.\n':'';
-  const recipe=`Vinos Pizza Dough\n\nBiga\n${v.biga.name} bucket (1 full bucket, ~7.51 kg)\nWednesday noon preparation; 3 h room temperature\nEstimated coolroom time: ${v.biga.fridgeHours} h at 3–5°C\nCondition: ${CONDITION_LABELS[v.condition]}\n${conditionNote}Biga-age multiplier: ${Math.round(v.biga.yeastFactor*100)}%\nCondition multiplier: ${Math.round(v.conditionFactor*100)}%\nManual yeast fine-tuning: ${v.yeastTrim}%\n\nBatch\n${v.balls} × ${v.ballWeight} g pizza balls\nFocaccia × ${v.focacciaCount} (${Math.round(v.focacciaDough)} g)\n\nConditions\nAmbient temperature: ${v.temperature}°C\nHumidity adjustment: ${v.humidityEnabled?'ON (experimental)':'OFF'}\nRelative humidity: ${v.humidity}%\nTarget hydration: ${fmt(v.targetHydrationPercent)}%\nHumidity correction: ${signedPercent(v.humidityCorrection)}\nWorking hydration: ${fmt(v.adjustedHydrationPercent)}%\nBiga flour share: ${fmt(v.bigaFlourShare)}%\n\nRecipe\nBiga: 1 bucket (~7.51 kg, includes ~6.67 g fresh yeast)\nAdditional flour: ${round5(v.addedFlour)} g\nIce water: ${round5(v.addedWater)} g (half ice / half water)\nSalt: ${round5(v.salt)} g\nAdded fresh yeast: ${fmt(round1(v.yeast))} g\n\nTarget dough: ${Math.round(v.targetDough)} g (before ingredient rounding)\n\nBiga-age and condition yeast adjustments are provisional, not validated.\nHumidity adjustment is experimental and optional.\nFocaccia remix: additional 50 g fresh yeast per 2.5 kg portion, separate from base recipe.`;
+  const methodInfo=v.direct?
+    `Direct dough — NO BIGA\nFresh yeast manually specified for this batch; no automatic direct-method yeast calibration.\n`:
+    `Biga: ${v.biga.name} bucket (1 full bucket, ~7.51 kg)\nWednesday noon preparation; 3 h room temperature\nEstimated coolroom time: ${v.biga.fridgeHours} h at 3–5°C\nCondition: ${CONDITION_LABELS[v.condition]}\n${conditionNote}Biga-age multiplier: ${Math.round(v.biga.yeastFactor*100)}%\nCondition multiplier: ${Math.round(v.conditionFactor*100)}%\nManual yeast fine-tuning: ${v.yeastTrim}%\n`;
+  const recipe=`Vinos Pizza Dough\n\nMethod\n${methodInfo}\nBatch\n${v.balls} × ${v.ballWeight} g pizza balls\nFocaccia × ${v.focacciaCount} (${Math.round(v.focacciaDough)} g)\n\nConditions\nAmbient temperature: ${v.temperature}°C\nHumidity adjustment: ${v.humidityEnabled?'ON (experimental)':'OFF'}\nRelative humidity: ${v.humidity}%\nTarget hydration: ${fmt(v.targetHydrationPercent)}%\nHumidity correction: ${signedPercent(v.humidityCorrection)}\nWorking hydration: ${fmt(v.adjustedHydrationPercent)}%\n${v.direct?'':'Biga flour share: '+fmt(v.bigaFlourShare)+'%\n'}\nRecipe\nBiga: ${v.direct?'None':'1 bucket (~7.51 kg, includes ~6.67 g fresh yeast)'}\n${v.direct?'Flour':'Additional flour'}: ${round5(v.addedFlour)} g\nIce water: ${round5(v.addedWater)} g (half ice / half water)\nSalt: ${round5(v.salt)} g\nFresh yeast: ${fmt(round1(v.yeast))} g\n\nTarget dough: ${Math.round(v.targetDough)} g (before ingredient rounding)\n\n${v.direct?'Direct-method yeast is manually specified; verify it against your intended proofing time.':'Biga-age and condition yeast adjustments are provisional, not validated.'}\nHumidity adjustment is experimental and optional.\nFocaccia remix: additional 50 g fresh yeast per 2.5 kg portion, separate from base recipe.`;
   try{
     await navigator.clipboard.writeText(recipe);
     $('toast').classList.add('show');
